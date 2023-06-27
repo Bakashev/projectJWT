@@ -10,10 +10,11 @@ class EventPlace(models.Model):
         db_table = 'eventPlace'
 
 
-class Events(models.Model):
+class Event(models.Model):
     event = models.CharField(max_length=130)
+    description = models.TextField()
     user = models.ManyToManyField(User)
-    place = models.ManyToManyField(EventPlace)
+    places = models.ManyToManyField(EventPlace)
 
     class Meta:
         db_table = 'event'

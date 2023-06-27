@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from events.models import Events, EventPlace
+from events.models import Event, EventPlace
 from django.contrib.auth.models import User
 
 
@@ -23,12 +23,24 @@ class EventPlaceSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     user = UserNameSerializer(many=True, read_only=True)
 
-    place = EventPlaceSerializer(many=True)
+    places = EventPlaceSerializer(many=True)
 
     class Meta:
-        model = Events
-        fields = ["id", "event", "user", "place"]
+        model = Event
+        fields = ["id", "event", "description", "user", "places"]
         read_only_fields = ['id']
 
+    def create(self, validated_data):
+        places_obj_list = []
+        for place in validated_data.pop('places'):
+            places_obj_list.append(
+                EventPlace.objects.get_or_create(
+                    city=place['city'],
+                    event_time=place['event_time']
+                )
+            )
+        event = Event.objects.create(**validated_data)
+        event.places.add(places_obj_list)
+        return event
 
 
